@@ -1,0 +1,22 @@
+class BasePage {
+  /**
+   * @param {import('@playwright/test').Page} page
+   */
+  constructor(page) {
+    this.page = page;
+  }
+
+  async navigate(path = '') {
+    await this.page.goto(path);
+  }
+
+  async getTitle() {
+    return await this.page.title();
+  }
+
+  async takeScreenshot(name) {
+    return await this.page.screenshot({ path: `test-results/${name}.png` });
+  }
+}
+
+module.exports = BasePage;
