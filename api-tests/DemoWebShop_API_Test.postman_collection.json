@@ -1,0 +1,178 @@
+{
+  "info": {
+    "_postman_id": "7d9b23f1-e374-42f0-9173-5a04bc6e8b4e",
+    "name": "DemoWebShop_API_Test",
+    "description": "SQA 19 Project Assignment - Part C API Automation with JSONPlaceholder Users API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. GET All Users",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Mandatory: Validate status code is 200",
+              "pm.test(\"Step 1.1: Status code should be 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// Validate response is a non-empty array",
+              "pm.test(\"Step 1.2: Response should be a non-empty array\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an(\"array\");",
+              "    pm.expect(jsonData.length).to.be.above(0);",
+              "});",
+              "",
+              "// Validate response contains user information and required fields",
+              "pm.test(\"Step 1.3: Each user should have an id, name, and email\", function () {",
+              "    const jsonData = pm.response.json();",
+              "    jsonData.forEach(function (user) {",
+              "        pm.expect(user).to.have.property(\"id\");",
+              "        pm.expect(user).to.have.property(\"name\");",
+              "        pm.expect(user).to.have.property(\"email\");",
+              "        pm.expect(user.id).to.be.a(\"number\");",
+              "        pm.expect(user.name).to.be.a(\"string\");",
+              "        pm.expect(user.email).to.be.a(\"string\");",
+              "    });",
+              "});",
+              "",
+              "// Step 2: Select any one user's ID and save it in a collection variable",
+              "const users = pm.response.json();",
+              "const randomIndex = Math.floor(Math.random() * users.length);",
+              "const selectedUser = users[randomIndex];",
+              "",
+              "pm.collectionVariables.set(\"userId\", selectedUser.id);",
+              "pm.collectionVariables.set(\"userPhone\", selectedUser.phone);",
+              "console.log(\"Saved selected userId:\", selectedUser.id, \"with phone:\", selectedUser.phone);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/users",
+          "protocol": "https",
+          "host": [
+            "jsonplaceholder",
+            "typicode",
+            "com"
+          ],
+          "path": [
+            "users"
+          ]
+        },
+        "description": "Send a GET request to get all users and validate response properties and save user ID."
+      },
+      "response": []
+    },
+    {
+      "name": "2. PUT Update User By ID",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// Generate dynamic data for name, email and company.name",
+              "const randomId = Math.floor(Math.random() * 9000) + 1000;",
+              "const dynamicName = \"QA Tester \" + randomId;",
+              "const dynamicEmail = \"qatester_\" + randomId + \"@example.com\";",
+              "const dynamicCompany = \"NextGen Solutions \" + randomId;",
+              "",
+              "pm.collectionVariables.set(\"updatedName\", dynamicName);",
+              "pm.collectionVariables.set(\"updatedEmail\", dynamicEmail);",
+              "pm.collectionVariables.set(\"updatedCompany\", dynamicCompany);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// Mandatory: Validate status code is 200",
+              "pm.test(\"Step 4.1: Status code should be 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const jsonData = pm.response.json();",
+              "const expectedId = Number(pm.collectionVariables.get(\"userId\"));",
+              "const expectedName = pm.collectionVariables.get(\"updatedName\");",
+              "",
+              "// Validate returned ID matches stored ID variable",
+              "pm.test(\"Step 4.2: The returned ID should be the same as the ID stored in the variable\", function () {",
+              "    pm.expect(jsonData.id).to.eql(expectedId);",
+              "});",
+              "",
+              "// Validate phone is not empty",
+              "pm.test(\"Step 4.3: Phone should not be empty\", function () {",
+              "    pm.expect(jsonData.phone).to.exist;",
+              "    pm.expect(jsonData.phone).to.not.be.empty;",
+              "});",
+              "",
+              "// Validate returned name matches updated dynamic name",
+              "pm.test(\"Step 4.4: Returned name should match the updated name\", function () {",
+              "    pm.expect(jsonData.name).to.eql(expectedName);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"{{updatedName}}\",\n  \"email\": \"{{updatedEmail}}\",\n  \"phone\": \"{{userPhone}}\",\n  \"company\": {\n    \"name\": \"{{updatedCompany}}\"\n  }\n}"
+        },
+        "url": {
+          "raw": "https://jsonplaceholder.typicode.com/users/{{userId}}",
+          "protocol": "https",
+          "host": [
+            "jsonplaceholder",
+            "typicode",
+            "com"
+          ],
+          "path": [
+            "users",
+            "{{userId}}"
+          ]
+        },
+        "description": "Send a PUT request using the saved ID variable and update name, email, company.name with dynamic data."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "userId",
+      "value": "1"
+    },
+    {
+      "key": "userPhone",
+      "value": "1-770-736-8031 x56442"
+    },
+    {
+      "key": "updatedName",
+      "value": ""
+    },
+    {
+      "key": "updatedEmail",
+      "value": ""
+    },
+    {
+      "key": "updatedCompany",
+      "value": ""
+    }
+  ]
+}
